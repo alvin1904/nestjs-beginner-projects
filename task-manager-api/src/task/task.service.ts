@@ -64,7 +64,7 @@ export class TaskService {
     return this.tasks[index];
   }
 
-  remove(id: string) {
+  remove(id: string): Task {
     let removedTask: Task | null = null;
     this.tasks = this.tasks.filter((task) => {
       if (task.id === id) removedTask = task;
