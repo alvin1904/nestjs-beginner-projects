@@ -22,8 +22,22 @@ export class TaskService {
   }
 
   findAll(filterTasksDto: FilterTasksDto) {
-    console.log(filterTasksDto);
-    return this.tasks;
+    let allTasks = [...this.tasks]; // Clone the tasks list to avoid mutating the original
+
+    const { status, search } = filterTasksDto;
+
+    if (status) {
+      allTasks = allTasks.filter((task) => task.status === status);
+    }
+
+    if (search) {
+      allTasks = allTasks.filter((task) => {
+        const regExp = new RegExp(search, 'i'); // Case-insensitive search
+        return regExp.test(task.title) || regExp.test(task.description);
+      });
+    }
+
+    return allTasks;
   }
 
   findOne(id: string) {
