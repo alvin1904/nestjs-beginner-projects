@@ -13,10 +13,19 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { FilterTasksDto } from './dto/filter-task.dto';
 import { ApiQuery } from '@nestjs/swagger';
-import {
-  SearchSwaggerObject,
-  StatusSwaggerObject,
-} from 'src/lib/constants/swagger.constants';
+
+const StatusSwaggerObject = {
+  name: 'status',
+  required: false,
+  type: String,
+  description: 'Filter tasks by status (OPEN, IN_PROGRESS, DONE)',
+};
+const SearchSwaggerObject = {
+  name: 'search',
+  required: false,
+  type: String,
+  description: 'Search tasks by title or description',
+};
 
 @Controller('task')
 export class TaskController {

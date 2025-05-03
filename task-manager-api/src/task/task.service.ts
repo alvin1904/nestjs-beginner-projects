@@ -8,6 +8,10 @@ import { FilterTasksDto } from './dto/filter-task.dto';
 @Injectable()
 export class TaskService {
   private tasks: Task[] = [];
+  private getCurrentTime(): Date {
+    // Keeps business logic separate from runtime dependencies like Date.
+    return new Date();
+  }
 
   create(dto: CreateTaskDto) {
     const task = new Task(
@@ -15,14 +19,14 @@ export class TaskService {
       dto.title,
       dto.description,
       TaskStatus.OPEN,
-      new Date(),
+      this.getCurrentTime(),
     );
     this.tasks.push(task);
     return task;
   }
 
   findAll(filterTasksDto: FilterTasksDto) {
-    let allTasks = [...this.tasks]; // Clone the tasks list to avoid mutating the original
+    let allTasks = this.tasks;
 
     const { status, search } = filterTasksDto;
 
@@ -32,7 +36,8 @@ export class TaskService {
 
     if (search) {
       allTasks = allTasks.filter((task) => {
-        const regExp = new RegExp(search, 'i'); // Case-insensitive search
+        const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regExp = new RegExp(escapedSearch, 'i'); // Case-insensitive search
         return regExp.test(task.title) || regExp.test(task.description);
       });
     }
@@ -41,17 +46,16 @@ export class TaskService {
   }
 
   findOne(id: string) {
-    const tasks = this.tasks.find((task) => task.id === id);
-    if (!tasks)
-      throw new HttpException('Tasks Not found', HttpStatus.NO_CONTENT);
-    return tasks;
+    const task = this.tasks.find((task) => task.id === id);
+    if (!task) throw new HttpException('Task Not found', HttpStatus.NOT_FOUND);
+    return task;
   }
 
   update(id: string, dto: UpdateTaskDto) {
     const index = this.tasks.findIndex((task) => task.id === id);
 
-    if (!index || index === -1)
-      throw new HttpException('Task Not found', HttpStatus.NO_CONTENT);
+    if (index === -1)
+      throw new HttpException('Task Not found', HttpStatus.NOT_FOUND);
 
     if (dto.status) this.tasks[index].status = dto.status;
     if (dto.title) this.tasks[index].title = dto.title;
@@ -66,6 +70,8 @@ export class TaskService {
       if (task.id === id) removedTask = task;
       return task.id !== id;
     });
+    if (!removedTask)
+      throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
     return removedTask;
   }
 }
