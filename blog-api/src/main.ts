@@ -7,8 +7,8 @@ async function bootstrap() {
 
   // Swagger Documentation
   const config = new DocumentBuilder()
-    .setTitle('Task Manager')
-    .setDescription('The task manager API description')
+    .setTitle('Blog Api')
+    .setDescription('The Blog API description')
     .setVersion('1.0')
     .addTag('REST')
     .build();
