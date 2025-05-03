@@ -6,10 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { FilterTasksDto } from './dto/filter-task.dto';
+import { ApiQuery } from '@nestjs/swagger';
+import {
+  SearchSwaggerObject,
+  StatusSwaggerObject,
+} from 'src/lib/constants/swagger.constants';
 
 @Controller('task')
 export class TaskController {
@@ -21,8 +28,10 @@ export class TaskController {
   }
 
   @Get()
-  findAll() {
-    return this.taskService.findAll();
+  @ApiQuery(StatusSwaggerObject)
+  @ApiQuery(SearchSwaggerObject)
+  findAll(@Query() filterDto: FilterTasksDto) {
+    return this.taskService.findAll(filterDto);
   }
 
   @Get(':id')
@@ -31,7 +40,7 @@ export class TaskController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+  update(@Param('id/status') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     return this.taskService.update(id, updateTaskDto);
   }
 

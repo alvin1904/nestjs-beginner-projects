@@ -3,6 +3,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskStatus, UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { FilterTasksDto } from './dto/filter-task.dto';
 
 @Injectable()
 export class TaskService {
@@ -20,14 +21,15 @@ export class TaskService {
     return task;
   }
 
-  findAll() {
+  findAll(filterTasksDto: FilterTasksDto) {
+    console.log(filterTasksDto);
     return this.tasks;
   }
 
   findOne(id: string) {
     const tasks = this.tasks.find((task) => task.id === id);
     if (!tasks)
-      throw new HttpException('Tasks Not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Tasks Not found', HttpStatus.NO_CONTENT);
     return tasks;
   }
 
@@ -35,7 +37,7 @@ export class TaskService {
     const index = this.tasks.findIndex((task) => task.id === id);
 
     if (!index || index === -1)
-      throw new HttpException('Task Not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Task Not found', HttpStatus.NO_CONTENT);
 
     if (dto.status) this.tasks[index].status = dto.status;
     if (dto.title) this.tasks[index].title = dto.title;
