@@ -1,9 +1,13 @@
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-const EnvironmentModule = ConfigModule.forRoot({
-  isGlobal: true,
-  expandVariables: true, // Env variables can use ${envVariableName} to expand.
-  envFilePath: '.env',
-});
-
-export default EnvironmentModule;
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      expandVariables: true,
+      envFilePath: '.env',
+    }),
+  ],
+})
+export class EnvironmentModule {}
