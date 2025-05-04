@@ -11,6 +11,10 @@ import {
 
 @Entity()
 export class Post {
+  constructor(data: Partial<Post>) {
+    Object.assign(this, data);
+  }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -23,7 +27,7 @@ export class Post {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts, { eager: true })
   user: User;
 
   @OneToMany(() => Comment, (comment) => comment.post)

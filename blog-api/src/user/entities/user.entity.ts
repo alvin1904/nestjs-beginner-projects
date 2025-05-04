@@ -12,6 +12,10 @@ import {
 @Entity()
 @Unique(['username', 'email'])
 export class User {
+  constructor(data: Partial<User>) {
+    Object.assign(this, data);
+  }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

@@ -10,6 +10,10 @@ import {
 
 @Entity()
 export class Comment {
+  constructor(data: Partial<Comment>) {
+    Object.assign(this, data);
+  }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
