@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,13 +15,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  private saltRounds = 10;
+
   async login(loginDto: LoginDto) {
     const { username, email, password } = loginDto;
     if (!username && !email)
-      throw new HttpException(
-        'One of email or username must be provided',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('One of email or username is required');
 
     const user = await this.userRepository.findOne({
       where: [{ username }, { email }],
@@ -31,30 +30,25 @@ export class AuthService {
       : false;
 
     if (!isPasswordCorrect || !user)
-      throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Invalid credentials');
 
-    const payload = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-    };
-    const accessToken = this.jwtService.sign(payload);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: userPassword, ...data } = user;
+    const accessToken = this.jwtService.sign(data);
 
-    return { accessToken, payload };
+    return { accessToken, data };
   }
 
   async register(registerDto: RegisterDto) {
+    const { username, email } = registerDto;
+
     const userExists = await this.userRepository.findOne({
-      where: [{ email: registerDto.email }, { username: registerDto.username }],
+      where: [{ username }, { email }],
     });
     if (userExists)
-      throw new HttpException(
-        'Username or email already exists',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Username or email already exists');
 
-    const saltRounds = 10;
-    const hashedPassword = await hash(registerDto.password, saltRounds);
+    const hashedPassword = await hash(registerDto.password, this.saltRounds);
 
     const user = new User(registerDto);
     Object.assign(user, { password: hashedPassword });
@@ -62,7 +56,9 @@ export class AuthService {
     const newUser = this.userRepository.create(user);
     await this.userRepository.save(newUser);
 
-    return newUser;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: userPassword, ...payload } = newUser;
+    return payload;
   }
 
   async logout() {
