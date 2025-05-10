@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -29,23 +30,58 @@ export class PostController {
     return await this.postService.create(req.user?.id || '', createPostDto);
   }
 
+  @Get('user')
+  @UseGuards(JWTAuthGuard)
+  async findAllOfUser(
+    @Req() req: RequestWithUser,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    const userId = req.user?.id;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    if (
+      isNaN(pageNumber) ||
+      isNaN(limitNumber) ||
+      pageNumber <= 0 ||
+      limitNumber <= 0
+    ) {
+      throw new BadRequestException('Invalid pagination parameters');
+    }
+
+    return await this.postService.findAll({ pageNumber, limitNumber, userId });
+  }
+
   @Get()
-  findAll() {
-    return this.postService.findAll();
+  async findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    if (
+      isNaN(pageNumber) ||
+      isNaN(limitNumber) ||
+      pageNumber <= 0 ||
+      limitNumber <= 0
+    ) {
+      throw new BadRequestException('Invalid pagination parameters');
+    }
+
+    return await this.postService.findAll({ pageNumber, limitNumber });
   }
 
   @Get(':id')
   @UseGuards(JWTAuthGuard)
   async findOne(@Param('id') id: string) {
     const post = await this.postService.findOne(id);
-    if (!post) throw new BadRequestException('Post Not found');
     return { ...post, message: 'Post fetched successfully' };
   }
 
   @Patch(':id')
   @UseGuards(JWTAuthGuard)
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postService.update(+id, updatePostDto);
+  async update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    await this.postService.update(id, updatePostDto);
+    return { message: 'Post updated successfully' };
   }
 
   @Delete(':id')
