@@ -17,7 +17,7 @@ export class SuccessInterceptor<T> implements NestInterceptor<T, any> {
     return next.handle().pipe(
       map((data) => {
         const message = (data as any)?.message || 'Request successful';
-        delete (data as any).message;
+        delete (data as any)?.message;
         return {
           success: true,
           message,
