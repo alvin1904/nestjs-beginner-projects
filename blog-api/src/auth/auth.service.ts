@@ -9,7 +9,10 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { compare, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { RequestWithUser } from './interfaces/RequestWithUser';
+import {
+  RequestWithUser,
+  UserDetailsInReq,
+} from './interfaces/RequestWithUser';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +27,7 @@ export class AuthService {
   async validateUser(username: string, password: string) {
     const user = await this.userRepository.findOne({
       where: [{ username }, { email: username }],
+      select: ['id', 'password'],
     });
     const isPasswordCorrect = user
       ? await compare(password, user.password)
@@ -32,21 +36,16 @@ export class AuthService {
     if (!isPasswordCorrect || !user)
       throw new ForbiddenException('Invalid credentials');
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...data } = user;
-    return data;
+    return { id: user.id } as UserDetailsInReq;
   }
 
-  async findOne(id: string) {
+  async findOne(id: string | undefined) {
     const user = await this.userRepository.findOne({
       where: [{ id }],
     });
+    if (!id || !user) throw new ForbiddenException('User does not exist');
 
-    if (!user) throw new ForbiddenException('User does not exist');
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...data } = user;
-    return data;
+    return user;
   }
 
   login(req: RequestWithUser) {

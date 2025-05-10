@@ -10,11 +10,10 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  async getProfile(id: string = '') {
+  async getProfile(id: string | undefined) {
     if (!id) throw new BadRequestException('Invalid user');
-    const data = await this.userRepository.findOne({ where: [{ id }] });
+    const data = await this.userRepository.findOne({ where: { id } });
     if (!data) throw new BadRequestException('User does not exist');
-    const { password, ...user } = data;
-    return { ...user, message: 'User profile fetched successfully' };
+    return { ...data, message: 'User profile fetched successfully' };
   }
 }
