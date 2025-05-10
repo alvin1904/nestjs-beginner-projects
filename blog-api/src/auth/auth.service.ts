@@ -37,6 +37,18 @@ export class AuthService {
     return data;
   }
 
+  async findOne(id: string) {
+    const user = await this.userRepository.findOne({
+      where: [{ id }],
+    });
+
+    if (!user) throw new ForbiddenException('User does not exist');
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...data } = user;
+    return data;
+  }
+
   login(req: RequestWithUser) {
     const userDetails = req.user;
     let accessToken: string | null = null;

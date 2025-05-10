@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { RequestWithUser } from './interfaces/RequestWithUser';
 import { LocalGuard } from './guards/local.guard';
-import { JWTStrategy } from './strategies/jwt.strategy';
+import { JWTAuthGuard } from './guards/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -21,7 +21,7 @@ export class AuthController {
   }
 
   @Get('logout')
-  @UseGuards(JWTStrategy)
+  @UseGuards(JWTAuthGuard)
   logout() {
     return this.authService.logout();
   }

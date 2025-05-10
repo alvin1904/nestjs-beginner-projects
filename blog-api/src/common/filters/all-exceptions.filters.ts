@@ -16,9 +16,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     const statusCode =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : exception.message || 'Internal server error';
+      exception instanceof HttpException ? exception.getStatus() : 500;
 
     const message =
       exception instanceof HttpException
@@ -27,6 +25,7 @@ export class AllExceptionFilter implements ExceptionFilter {
 
     response.status(statusCode).json({
       success: false,
+      statusCode,
       message:
         typeof message === 'string'
           ? message
