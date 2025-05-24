@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { RegisterReqDto } from './dto/register.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './decorator/current-user.decorator';
-import { User } from 'src/user/schema/user.schema';
 import { Response } from 'express';
+import { TokenPayload } from 'src/common/utils/session-tokens.util';
 
 @Controller('auth')
 export class AuthController {
@@ -18,7 +18,7 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalAuthGuard)
   async login(
-    @CurrentUser() user: User,
+    @CurrentUser() user: TokenPayload,
     @Res({ passthrough: true }) response: Response,
   ) {
     return await this.authService.login(user, response);

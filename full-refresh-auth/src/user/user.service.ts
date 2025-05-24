@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
-import { FilterQuery, Model, UpdateQuery } from 'mongoose';
+import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 
 @Injectable()
 export class UserService {
@@ -16,5 +16,18 @@ export class UserService {
 
   async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>) {
     return this.userModel.findOneAndUpdate(query, data);
+  }
+
+  async saveRefreshToken(userId: Types.ObjectId, hashedRefreshToken: string) {
+    return await this.updateUser(
+      { _id: userId },
+      { $set: { refreshToken: hashedRefreshToken } },
+    );
+  }
+  async clearRefreshToken(userId: Types.ObjectId) {
+    return await this.updateUser(
+      { _id: userId },
+      { $set: { refreshToken: '' } },
+    );
   }
 }
