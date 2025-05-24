@@ -11,5 +11,5 @@
 
 ```bash
     pnpm add passport passport-local passport-jwt passport-google-oauth20 @nestjs/passport @nestjs/jwt cookie-parser
-    pnpm add -D @types/passport-local @types/passport-jwt @types/passport-google-oauth20
+    pnpm add -D @types/passport-local @types/passport-jwt @types/passport-google-oauth20 @types/cookie-parser
 ```
