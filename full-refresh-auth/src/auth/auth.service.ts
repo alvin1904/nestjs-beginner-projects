@@ -78,6 +78,24 @@ export class AuthService {
     return { _id, name, email };
   }
 
+  async verifyRefreshToken(refreshToken: string, payload: TokenPayload) {
+    const user = await this.userModel.findOne({
+      id: payload._id,
+    });
+
+    if (!user || !user.refreshToken) throw new ForbiddenException();
+
+    const authenticated = await comparePassword(
+      refreshToken,
+      user.refreshToken,
+    );
+    if (!authenticated)
+      throw new UnauthorizedException('Refresh token is not valid');
+
+    const { email, name } = user;
+    return { id: payload._id, email, name };
+  }
+
   /**
    * Returns secure cookie options depending on the environment.
    *

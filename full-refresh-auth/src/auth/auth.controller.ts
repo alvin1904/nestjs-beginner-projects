@@ -5,6 +5,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './decorator/current-user.decorator';
 import { Response } from 'express';
 import { TokenPayload } from 'src/common/utils/session-tokens.util';
+import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +19,15 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalAuthGuard)
   async login(
+    @CurrentUser() user: TokenPayload,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return await this.authService.login(user, response);
+  }
+
+  @Post('refresh')
+  @UseGuards(JwtRefreshAuthGuard)
+  async refresh(
     @CurrentUser() user: TokenPayload,
     @Res({ passthrough: true }) response: Response,
   ) {
